@@ -1,45 +1,51 @@
-// Load the dataset and create the visualization
 d3.json("https://raw.githubusercontent.com/vega/vega-datasets/master/data/cars.json").then(data => {
-    // Filter out data points with null MPG or Horsepower
     data = data.filter(d => d["Horsepower"] != null && d["Miles_per_Gallon"] != null);
 
-    const width = 800;
-    const height = 600;
-    const margin = { top: 10, right: 10, bottom: 50, left: 60 };
-    let currentScene = 0;
+    const container = d3.select("#visualization");
+    const margin = { top: 20, right: 30, bottom: 50, left: 60 };
 
-    const xScale = d3.scaleLinear()
-        .domain([0, d3.max(data, d => d["Horsepower"])])
-        .range([margin.left, width - margin.right]);
+    function updateDimensions() {
+        const width = container.node().clientWidth;
+        const height = container.node().clientHeight;
 
-    const yScale = d3.scaleLinear()
-        .domain([0, d3.max(data, d => d["Miles_per_Gallon"])])
-        .range([height - margin.bottom, margin.top]);
+        const xScale = d3.scaleLinear()
+            .domain([0, d3.max(data, d => d["Horsepower"])])
+            .range([margin.left, width - margin.right]);
 
-    const svg = d3.select("#visualization")
-        .append("svg")
-        .attr("width", width)
-        .attr("height", height);
+        const yScale = d3.scaleLinear()
+            .domain([0, d3.max(data, d => d["Miles_per_Gallon"])])
+            .range([height - margin.bottom, margin.top]);
 
-    setupScene(svg, xScale, yScale, data);
+        const svg = container.append("svg")
+            .attr("width", width)
+            .attr("height", height);
 
-    const scenes = [
-        () => setupScene(svg, xScale, yScale, data, "All"),
-        () => setupScene(svg, xScale, yScale, data, "HighMPG"),
-        () => setupScene(svg, xScale, yScale, data, "HighHP")
-    ];
+        const scenes = [
+            () => setupScene(svg, xScale, yScale, data, "All", width, height, margin),
+            () => setupScene(svg, xScale, yScale, data, "HighMPG", width, height, margin),
+            () => setupScene(svg, xScale, yScale, data, "HighHP", width, height, margin)
+        ];
 
-    d3.select("#nextButton").on("click", () => {
-        currentScene = (currentScene + 1) % scenes.length;
-        svg.selectAll("*").remove(); 
-        scenes[currentScene]();      
+        let currentScene = 0;
+        scenes[currentScene]();
+
+        d3.select("#nextButton").on("click", () => {
+            currentScene = (currentScene + 1) % scenes.length;
+            svg.selectAll("*").remove(); 
+            scenes[currentScene]();    
+        });
+    }
+
+    window.addEventListener('resize', () => {
+        container.select("svg").remove(); 
+        updateDimensions();
     });
+
+    updateDimensions();
 });
 
-function setupScene(svg, xScale, yScale, data, filter = "All") {
-    const width = +svg.attr("width");
-    const height = +svg.attr("height");
-    const margin = { top: 10, right: 10, bottom: 50, left: 60 };
+function setupScene(svg, xScale, yScale, data, filter, width, height, margin) {
+    svg.selectAll("*").remove();
 
     let filteredData = data;
     let annotations = [];
@@ -51,9 +57,9 @@ function setupScene(svg, xScale, yScale, data, filter = "All") {
         annotations = [{ x: 500, y: 500, text: "Cars with Horsepower > 150" }];
     } else {
         annotations = [
-            { x: 50, y: 40, text: "High MPG, Low Horsepower" },
-            { x: 200, y: 250, text: "Average MPG, Average Horsepower" },
-            { x: 500, y: 550, text: "Low MPG, High Horsepower" }
+            { x: 40, y: 40, text: "High MPG, Low Horsepower" },
+            { x: 130, y: 200, text: "Average MPG, Average Horsepower" },
+            { x: 190, y: 500, text: "Low MPG, High Horsepower" }
         ];
     }
 
@@ -85,6 +91,10 @@ function setupScene(svg, xScale, yScale, data, filter = "All") {
        .attr("fill", "black")
        .text(d => d.text);
 
+    setupTooltips(svg, filteredData);
+}
+
+function setupTooltips(svg, data) {
     const tooltip = d3.select("body").append("div")
         .attr("class", "tooltip")
         .style("opacity", 0);
@@ -93,10 +103,10 @@ function setupScene(svg, xScale, yScale, data, filter = "All") {
        .on("mouseover", (event, d) => {
             tooltip.transition().duration(200).style("opacity", .9);
             tooltip.html(`Name: ${d.Name}<br>Horsepower: ${d.Horsepower}<br>MPG: ${d.Miles_per_Gallon}`)
-                .style("left", (event.pageX + 5) + "px")
-                .style("top", (event.pageY - 28) + "px");
+                   .style("left", (event.pageX + 5) + "px")
+                   .style("top", (event.pageY - 28) + "px");
         })
        .on("mouseout", () => {
-            tooltip.transition().duration(500).style("opacity", 0);
+            tooltip.transition().duration(500).style("opacity", 0).remove();
         });
 }
