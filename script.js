@@ -32,7 +32,7 @@ d3.json("https://raw.githubusercontent.com/vega/vega-datasets/master/data/cars.j
         d3.select("#nextButton").on("click", () => {
             currentScene = (currentScene + 1) % scenes.length;
             svg.selectAll("*").remove(); 
-            scenes[currentScene]();    
+            scenes[currentScene]();      
         });
     }
 
@@ -51,15 +51,15 @@ function setupScene(svg, xScale, yScale, data, filter, width, height, margin) {
     let annotations = [];
     if (filter === "HighMPG") {
         filteredData = data.filter(d => d["Miles_per_Gallon"] > 30);
-        annotations = [{ x: 300, y: 100, text: "Cars with MPG > 30" }];
+        annotations = [{ x: 70, y: 40, text: "Cars with MPG > 30" }];
     } else if (filter === "HighHP") {
         filteredData = data.filter(d => d["Horsepower"] > 150);
-        annotations = [{ x: 500, y: 500, text: "Cars with Horsepower > 150" }];
+        annotations = [{ x: 200, y: 500, text: "Cars with Horsepower > 150" }];
     } else {
         annotations = [
             { x: 40, y: 40, text: "High MPG, Low Horsepower" },
-            { x: 130, y: 200, text: "Average MPG, Average Horsepower" },
-            { x: 190, y: 500, text: "Low MPG, High Horsepower" }
+            { x: 120, y: 250, text: "Average MPG, Average Horsepower" },
+            { x: 200, y: 500, text: "Low MPG, High Horsepower" }
         ];
     }
 
@@ -69,6 +69,22 @@ function setupScene(svg, xScale, yScale, data, filter, width, height, margin) {
     svg.append("g")
        .attr("transform", `translate(${margin.left},0)`)
        .call(d3.axisLeft(yScale));
+
+    svg.append("text")
+       .attr("class", "x label")
+       .attr("text-anchor", "end")
+       .attr("x", width / 2)
+       .attr("y", height - 10)
+       .text("Horsepower");
+
+    svg.append("text")
+       .attr("class", "y label")
+       .attr("text-anchor", "end")
+       .attr("y", 15)
+       .attr("x", -height / 2)
+       .attr("dy", ".75em")
+       .attr("transform", "rotate(-90)")
+       .text("Miles per Gallon");
 
     svg.selectAll("circle")
        .data(filteredData)
