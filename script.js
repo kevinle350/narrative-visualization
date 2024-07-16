@@ -52,15 +52,15 @@ function setupScene(svg, xScale, yScale, data, filter, width, height, margin) {
     let annotations = [];
     if (filter === "HighMPG") {
         filteredData = data.filter(d => d["Miles_per_Gallon"] > 30);
-        annotations = [{ x: 70, y: 40, text: "Cars with MPG > 30" }];
+        annotations = [{ x: 50, y: 40, text: "Cars with MPG > 30" }];
     } else if (filter === "HighHP") {
         filteredData = data.filter(d => d["Horsepower"] > 150);
-        annotations = [{ x: 200, y: 500, text: "Cars with Horsepower > 150" }];
+        annotations = [{ x: 180, y: 15, text: "Cars with Horsepower > 150" }];
     } else {
         annotations = [
-            { x: 40, y: 40, text: "High MPG, Low Horsepower" },
-            { x: 120, y: 250, text: "Average MPG, Average Horsepower" },
-            { x: 200, y: 500, text: "Low MPG, High Horsepower" }
+            { x: 60, y: 40, text: "High MPG, Low Horsepower" },
+            { x: 100, y: 20, text: "Average MPG, Average Horsepower" },
+            { x: 160, y: 5, text: "Low MPG, High Horsepower" }
         ];
     }
 
@@ -119,7 +119,7 @@ function setupTooltips(svg, data) {
     svg.selectAll("circle")
        .on("mouseover", (event, d) => {
             tooltip.transition().duration(200).style("opacity", .9);
-            tooltip.html(`Name: ${d.Name}<br>Horsepower: ${d.Horsepower}<br>MPG: ${d.Miles_per_Gallon}`)
+            tooltip.html(`Name: ${d.Name}<br>Horsepower: ${d.Horsepower}<br>MPG: ${d["Miles_per_Gallon"]}`)
                    .style("left", (event.pageX + 5) + "px")
                    .style("top", (event.pageY - 28) + "px");
         })
