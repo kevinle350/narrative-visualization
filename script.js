@@ -32,6 +32,7 @@ d3.json("https://raw.githubusercontent.com/vega/vega-datasets/master/data/cars.j
         d3.select("#nextButton").on("click", () => {
             currentScene = (currentScene + 1) % scenes.length;
             svg.selectAll("*").remove(); 
+            d3.select(".tooltip").remove(); 
             scenes[currentScene]();      
         });
     }
@@ -123,6 +124,6 @@ function setupTooltips(svg, data) {
                    .style("top", (event.pageY - 28) + "px");
         })
        .on("mouseout", () => {
-            tooltip.transition().duration(500).style("opacity", 0).remove();
+            tooltip.transition().duration(500).style("opacity", 0);
         });
 }
